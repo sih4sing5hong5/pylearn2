@@ -29,6 +29,10 @@
                 layer_name: 'h1',
                 layer_content: !pkl: "rbm2.pkl"
             },
+            !obj:pylearn2.models.mlp.PretrainedLayer {
+                layer_name: 'h2',
+                layer_content: !pkl: "rbm3.pkl"
+            },
             !obj:pylearn2.models.mlp.Softmax {
                 layer_name: 'y',
                 # The classes are unbalanced. Set the bias parameters of the softmax regression
@@ -57,8 +61,8 @@
         # We stop when validation set classification error hasn't decreased for 10 epochs
         termination_criterion: !obj:pylearn2.termination_criteria.MonitorBased {
             channel_name: "valid_y_misclass",
-            prop_decrease: 0.1,
-            N: 1
+            prop_decrease: 0.01,
+            N: 2
         },
     },
     # We save the model whenever we improve on the validation set classification error

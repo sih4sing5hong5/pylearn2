@@ -1,0 +1,115 @@
+# This file shows how to train a binary RBM on MNIST by viewing it as a single layer DBM.
+# The hyperparameters in this file aren't especially great; they're mostly chosen to demonstrate
+# the interface. Feel free to suggest better hyperparameters!
+!obj:pylearn2.train.Train {
+    # For this example, we will train on a binarized version of MNIST.
+    # We binarize by drawing samples--if an MNIST pixel is set to 0.9,
+    # we make binary pixel that is 1 with probability 0.9. We redo the
+    # sampling every time the example is presented to the learning
+    # algorithm.
+    # In pylearn2, we do this by making a Binarizer dataset. The Binarizer
+    # is a dataset that can draw samples like this in terms of any
+    # input dataset with values in [0,1].
+    dataset: &data !obj:pylearn2.datasets.binarizer.Binarizer {
+        # We use the "raw" tag to specify the underlying dataset defining
+        # the sampling probabilities should be MNIST.
+        raw: &raw_train !obj:pylearn2.datasets.mnist.MNIST {
+            which_set: "train",
+        }
+    },
+ 
+ 
+ 
+    model: !obj:pylearn2.models.rbm.RBM {
+        #batch_size: 100,
+        # 1 mean field iteration reaches convergence in the RBM
+        #niter: 1,
+        # The visible layer of this RBM is just a binary vector
+        # (as opposed to a binary image for convolutional models,
+        # a Gaussian distributed vector, etc.)
+        
+            nvis: 784,
+            # We can initialize the biases of the visible units
+            # so that sigmoid(b_i) = E[v_i] where the expectation
+            # is taken over the dataset. This should get the biases
+            # about correct from the start and helps speed up learning.
+            #bias_from_marginals: *raw_train,
+           nhid : 400,
+
+           irange : 0.05,
+
+           # There are many ways to parameterize a GRBM. Here we use a
+           # parameterization that makes the correspondence to denoising
+           # autoencoders more clear.
+           
+
+           # Some learning algorithms are capable of estimating the standard
+           # deviation of the visible units of a GRBM successfully, others are not
+           # and just fix the standard deviation to 1.  We're going to show off
+           # and learn the standard deviation.
+           #learn_sigma : True,
+
+           # Learning works better if we provide a smart initialization for the
+           # parameters.  Here we start sigma at .4 , which is about the same
+           # standard deviation as the training data. We start the biases on the
+           # hidden units at -2, which will make them have fairly sparse
+           # activations.
+           #init_sigma : .4,
+           init_bias_hid : -2,
+
+           # Some GRBM training algorithms can't handle the visible units being
+           # noisy and just use their mean for all computations. We will show off
+           # and not use that hack here.
+           #mean_vis : False,
+
+           # One hack we will make is we will scale back the gradient steps on the
+           # sigma parameter. This way we don't need to worry about sigma getting
+           # too small prematurely (if it gets too small too fast the learning
+           # signal gets weak).
+           # sigma_lr_scale : 1e-3
+
+    
+        
+    },
+    # We train the model using stochastic gradient descent.
+    # One benefit of using pylearn2 is that we can use the exact same piece of
+    # code to train a DBM as to train an MLP. The interface that SGD uses to get
+    # the gradient of the cost function from an MLP can also get the *approximate*
+    # gradient from a DBM.
+    algorithm: !obj:pylearn2.training_algorithms.sgd.SGD {
+               # We initialize the learning rate and momentum here. Down below
+               # we can control the way they decay with various callbacks.
+               learning_rate: 1e-1,
+               batch_size : 50,
+               # These arguments say to compute the monitoring channels on 10 batches
+               # of the training set.
+               monitoring_batches: 10,
+               monitoring_dataset: { 'train': *data},
+               # The SumOfCosts allows us to add together a few terms to make a complicated
+               # cost function.
+               cost : !obj:pylearn2.costs.ebm_estimation.CDk {
+                      nsteps : 5
+               # Denoising score matching uses a corruption process to transform
+               # the raw data.  Here we use additive gaussian noise.
+               #---------------can be changed----------------------
+                   
+               },
+               # We tell the RBM to train for 300 epochs
+               #-------------- can be changed-------------------
+               termination_criterion: !obj:pylearn2.termination_criteria.EpochCounter { max_epochs: 1 },
+           
+               },
+    extensions: [
+            # This callback makes the momentum grow to 0.9 linearly. It starts
+            # growing at epoch 5 and finishes growing at epoch 6.
+            
+            !obj:pylearn2.training_algorithms.sgd.MonitorBasedLRAdjuster {
+              channel_name : train_reconstruction_error,
+            }
+    ],
+    # This saves to save the trained model to the same path as
+    # the yaml file, but replacing .yaml with .pkl
+    save_path: "${PYLEARN2_TRAIN_FILE_FULL_STEM}.pkl",
+    # This says to save it every epoch
+    save_freq : 1
+}

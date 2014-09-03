@@ -10,8 +10,9 @@
     dataset: &data !obj:pylearn2.datasets.binarizer.Binarizer {
         # We use the "raw" tag to specify the underlying dataset defining
         # the sampling probabilities should be MNIST.
-        raw: &raw_train !obj:pylearn2.datasets.mnist.MNIST {
+        raw: &raw_train !obj:pylearn2.datasets.gi2_gian5.gi2_gian5 {
             which_set: "train",
+            choose: 100,
         }
     },
  
@@ -41,10 +42,10 @@
                 #init_bias_target_marginals: *train,
                 irange: .0,
                 # There are ten different digitss to learn to recognize, i.e., 10 class labels
-                n_classes: 10
+                n_classes: 2
             }
         ],
-        nvis: 784,
+        nvis: 212,
     },
     # We train using SGD and momentum
     algorithm: !obj:pylearn2.training_algorithms.sgd.SGD {
@@ -62,7 +63,7 @@
         termination_criterion: !obj:pylearn2.termination_criteria.MonitorBased {
             channel_name: "valid_y_misclass",
             prop_decrease: 0.01,
-            N: 2
+            N: 3
         },
     },
     # We save the model whenever we improve on the validation set classification error

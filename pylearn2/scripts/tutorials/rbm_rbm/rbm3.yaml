@@ -12,8 +12,9 @@
     # input dataset with values in [0,1].
     dataset: &data !obj:pylearn2.datasets.transformer_dataset.TransformerDataset {
         raw: &raw_data !obj:pylearn2.datasets.binarizer.Binarizer {
-            raw: &raw_train !obj:pylearn2.datasets.mnist.MNIST {
+            raw: &raw_train !obj:pylearn2.datasets.gi2_gian5.gi2_gian5 {
                 which_set: "train",
+                choose: 100,
             }
         },
  

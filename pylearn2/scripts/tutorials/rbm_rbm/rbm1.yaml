@@ -13,8 +13,9 @@
     dataset: &data !obj:pylearn2.datasets.binarizer.Binarizer {
         # We use the "raw" tag to specify the underlying dataset defining
         # the sampling probabilities should be MNIST.
-        raw: &raw_train !obj:pylearn2.datasets.mnist.MNIST {
+        raw: &raw_train !obj:pylearn2.datasets.gi2_gian5.gi2_gian5 {
             which_set: "train",
+            choose: 100,
         }
     },
  
@@ -28,7 +29,7 @@
         # (as opposed to a binary image for convolutional models,
         # a Gaussian distributed vector, etc.)
         
-            nvis: 784,
+            nvis: 212,
             # We can initialize the biases of the visible units
             # so that sigmoid(b_i) = E[v_i] where the expectation
             # is taken over the dataset. This should get the biases
@@ -96,7 +97,7 @@
                },
                # We tell the RBM to train for 300 epochs
                #-------------- can be changed-------------------
-               termination_criterion: !obj:pylearn2.termination_criteria.EpochCounter { max_epochs: 1 },
+               termination_criterion: !obj:pylearn2.termination_criteria.EpochCounter { max_epochs: 100 },
            
                },
     extensions: [

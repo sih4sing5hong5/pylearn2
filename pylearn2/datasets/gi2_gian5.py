@@ -6,6 +6,7 @@
 import json
 import numpy
 from numpy.core.fromnumeric import choose
+import itertools
 __authors__ = "Ian Goodfellow"
 __copyright__ = "Copyright 2010-2012, Universite de Montreal"
 __credits__ = ["Ian Goodfellow"]
@@ -17,6 +18,7 @@ import numpy as N
 import warnings
 np = N
 from pylearn2.datasets import dense_design_matrix
+from pylearn2.utils.rng import make_np_rng
 
 
 class gi2_gian5(dense_design_matrix.DenseDesignMatrix):
@@ -40,7 +42,7 @@ class gi2_gian5(dense_design_matrix.DenseDesignMatrix):
     fit_test_preprocessor : WRITEME
     """
 
-    def __init__(self, which_set,
+    def __init__(self, which_set, shuffle=False,
                  one_hot=None, binarize=False, start=None,
                  stop=None, axes=['b', 0, 1, 'c'],
                  choose=100,
@@ -103,6 +105,19 @@ class gi2_gian5(dense_design_matrix.DenseDesignMatrix):
 #         assert c == 28
 #         topo_view = topo_view.reshape(m, r, c, 1)
 
+        if shuffle:
+            self.shuffle_rng = make_np_rng(None, [1, 2, 3], which_method="shuffle")
+            for i in xrange(m):
+                j = self.shuffle_rng.randint(m)
+                # Copy ensures that memory is not aliased.
+                tmp = topo_view[i, :].copy()
+#                 print(tmp)
+                topo_view[i, :] = topo_view[j, :]
+                topo_view[j, :] = tmp
+                # Note: slicing with i:i+1 works for one_hot=True/False
+                tmp = y[i:i+1].copy()
+                y[i] = y[j]
+                y[j] = tmp
         if which_set == 'train':
             assert m == 17887
         elif which_set == 'test':
@@ -151,6 +166,14 @@ class gi2_gian5(dense_design_matrix.DenseDesignMatrix):
     def choose_feature(self,qq,n=0):
         chosed=[]
         for q in qq:
+            q[0]=-q[0]/10.0
+            q[2]=-q[2]/10.0
+            for i in itertools.chain(xrange(6,10),xrange(14,14+n)):
+                q[i]=q[i]/q[1]
+            for i in itertools.chain(xrange(10,14),xrange(1014,1014+n)):
+                q[i]=q[i]/q[3]
+            q[1]/=1000.0
+            q[3]/=1000.0
             chosed.append(q[0:4] + q[6:14] + q[14:14 + n] + q[1014:1014 + n])
         return chosed
 

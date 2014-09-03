@@ -11,7 +11,8 @@
         # We use the "raw" tag to specify the underlying dataset defining
         # the sampling probabilities should be MNIST.
         raw: &raw_train !obj:pylearn2.datasets.gi2_gian5.gi2_gian5 {
-            which_set: "train",
+            which_set: "test",
+            shuffle: False,
             choose: 100,
         }
     },
@@ -25,14 +26,6 @@
             !obj:pylearn2.models.mlp.PretrainedLayer {
                 layer_name: 'h0',
                 layer_content: !pkl: "rbm1.pkl"
-            },
-            !obj:pylearn2.models.mlp.PretrainedLayer {
-                layer_name: 'h1',
-                layer_content: !pkl: "rbm2.pkl"
-            },
-            !obj:pylearn2.models.mlp.PretrainedLayer {
-                layer_name: 'h2',
-                layer_content: !pkl: "rbm3.pkl"
             },
             !obj:pylearn2.models.mlp.Softmax {
                 layer_name: 'y',

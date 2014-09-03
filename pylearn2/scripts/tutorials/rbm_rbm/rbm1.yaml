@@ -14,7 +14,8 @@
         # We use the "raw" tag to specify the underlying dataset defining
         # the sampling probabilities should be MNIST.
         raw: &raw_train !obj:pylearn2.datasets.gi2_gian5.gi2_gian5 {
-            which_set: "train",
+            which_set: "test",
+            shuffle: False,
             choose: 100,
         }
     },
@@ -42,6 +43,7 @@
            # There are many ways to parameterize a GRBM. Here we use a
            # parameterization that makes the correspondence to denoising
            # autoencoders more clear.
+           #energy_function_class : !obj:pylearn2.energy_functions.rbm_energy.grbm_type_1 {},
            
 
            # Some learning algorithms are capable of estimating the standard
@@ -80,7 +82,7 @@
     algorithm: !obj:pylearn2.training_algorithms.sgd.SGD {
                # We initialize the learning rate and momentum here. Down below
                # we can control the way they decay with various callbacks.
-               learning_rate: 1e-1,
+               learning_rate: 1e-3,
                batch_size : 50,
                # These arguments say to compute the monitoring channels on 10 batches
                # of the training set.
@@ -97,7 +99,7 @@
                },
                # We tell the RBM to train for 300 epochs
                #-------------- can be changed-------------------
-               termination_criterion: !obj:pylearn2.termination_criteria.EpochCounter { max_epochs: 100 },
+               termination_criterion: !obj:pylearn2.termination_criteria.EpochCounter { max_epochs: 10 },
            
                },
     extensions: [

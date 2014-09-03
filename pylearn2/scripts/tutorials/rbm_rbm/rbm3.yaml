@@ -13,7 +13,8 @@
     dataset: &data !obj:pylearn2.datasets.transformer_dataset.TransformerDataset {
         raw: &raw_data !obj:pylearn2.datasets.binarizer.Binarizer {
             raw: &raw_train !obj:pylearn2.datasets.gi2_gian5.gi2_gian5 {
-                which_set: "train",
+                which_set: "test",
+                shuffle: False,
                 choose: 100,
             }
         },
@@ -102,7 +103,7 @@
                },
                # We tell the RBM to train for 300 epochs
                #-------------- can be changed-------------------
-               termination_criterion: !obj:pylearn2.termination_criteria.EpochCounter { max_epochs: 2 },
+               termination_criterion: !obj:pylearn2.termination_criteria.EpochCounter { max_epochs: 3 },
            
                },
     extensions: [

@@ -68,6 +68,12 @@ class gi2_gian5_tshi3(dense_design_matrix.DenseDesignMatrix):
         topo_view,y = self.read_file(file_name)
         
         max_labels = 2
+        
+        one_hot_y = N.zeros((y.shape[0], max_labels), dtype='uint8')
+        for i in xrange(y.shape[0]):
+            one_hot_y[i, y[i]] = 1
+        y = one_hot_y
+        
         if one_hot is not None:
             warnings.warn("the `one_hot` parameter is deprecated. To get "
                           "one-hot encoded targets, request that they "

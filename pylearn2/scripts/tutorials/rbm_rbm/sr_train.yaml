@@ -15,21 +15,23 @@
         conjugate: 1,
         monitoring_dataset:
             {
-                'train' : *train,
+                #'train' : *train,
                 'valid' : *train,
                 #!obj:pylearn2.datasets.gi2_gian5.gi2_gian5 {
                 #              which_set: 'train',
                 #              start: 3000,
                 #              stop:  3741
                     #      },
-                'test'  : !obj:pylearn2.datasets.gi2_gian5.gi2_gian5 {
-                              which_set: 'test',
-                              shuffle: False,
-                              choose: 100,
-                          }
+               # 'test'  : !obj:pylearn2.datasets.gi2_gian5.gi2_gian5 {
+               #               which_set: 'test',
+               #               shuffle: False,
+                #              choose: 100,
+                  #        }
             },
         termination_criterion: !obj:pylearn2.termination_criteria.MonitorBased {
-            channel_name: "valid_y_misclass"
+            channel_name: "valid_y_misclass",
+            prop_decrease: 0.01,
+            N: 3
         }
     },
     extensions: [

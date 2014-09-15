@@ -7,6 +7,7 @@ import json
 import numpy
 from numpy.core.fromnumeric import choose
 import itertools
+import math
 __authors__ = "Ian Goodfellow"
 __copyright__ = "Copyright 2010-2012, Universite de Montreal"
 __credits__ = ["Ian Goodfellow"]
@@ -73,7 +74,7 @@ class gi2_gian5(dense_design_matrix.DenseDesignMatrix):
             default = ('b', 0, 1, 'c')
             return b01c.transpose(*[default.index(axis) for axis in axes])
 
-        path = "/home/Ihc/git/huan1-ik8_gian5-kiu3/mt/"
+        path = "/home/chhsueh/git/pylearn2/pylearn2/scripts/tutorials/rbm_rbm/mt/"
         if which_set == 'train':
             im_path = path + 'h.q'
             label_path = path + 'h.a'
@@ -99,6 +100,9 @@ class gi2_gian5(dense_design_matrix.DenseDesignMatrix):
                           "`one_hot` will be removed on or after "
                           "September 20, 2014.", stacklevel=2)
 
+        print(topo_view)
+        print(topo_view[0,:])
+        print(topo_view[-1,:])
         print(y)
         m, r = topo_view.shape
         assert r == 12+choose+choose
@@ -114,14 +118,15 @@ class gi2_gian5(dense_design_matrix.DenseDesignMatrix):
 #                 print(tmp)
                 topo_view[i, :] = topo_view[j, :]
                 topo_view[j, :] = tmp
+#                 print(tmp)
                 # Note: slicing with i:i+1 works for one_hot=True/False
                 tmp = y[i:i+1].copy()
                 y[i] = y[j]
                 y[j] = tmp
         if which_set == 'train':
-            assert m == 17887
+            assert m == 17800
         elif which_set == 'test':
-            assert m == 3741
+            assert m == 3600
         else:
             assert False
 
@@ -162,20 +167,23 @@ class gi2_gian5(dense_design_matrix.DenseDesignMatrix):
             for q in array:
                 chosed.append([q])
             array=chosed
+        array=array[:len(array)//200*200]
         return numpy.array(array,dtype=dtype)
     def choose_feature(self,qq,n=0):
         chosed=[]
         for q in qq:
-            q[0]=-q[0]/10.0
-            q[2]=-q[2]/10.0
             for i in itertools.chain(xrange(6,10),xrange(14,14+n)):
-                q[i]=q[i]/q[1]
+                q[i]=float(q[i])/q[1]
             for i in itertools.chain(xrange(10,14),xrange(1014,1014+n)):
-                q[i]=q[i]/q[3]
-            q[1]/=1000.0
-            q[3]/=1000.0
+                q[i]=float(q[i])/q[3]
+            q[0]=self.sigmoid(float(q[0])/q[2]-1)
+            q[2]=1.0-q[0]
+            q[1]=self.sigmoid(float(q[1])/q[3]-1)
+            q[3]=1.0-q[1]
             chosed.append(q[0:4] + q[6:14] + q[14:14 + n] + q[1014:1014 + n])
         return chosed
+    def sigmoid(self,n):
+        return 1/(1+math.exp(n))
 
     def adjust_for_viewer(self, X):
         """

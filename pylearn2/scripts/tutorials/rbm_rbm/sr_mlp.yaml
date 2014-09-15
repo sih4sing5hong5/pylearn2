@@ -2,7 +2,7 @@
     dataset: &train !obj:pylearn2.datasets.gi2_gian5.gi2_gian5 {
             which_set: "test",
             shuffle: False,
-            choose: 100,
+            choose: 00,
     },
     model: !obj:pylearn2.models.mlp.MLP {
         batch_size: 100,
@@ -11,10 +11,10 @@
                      max_col_norm: 1.0,
                      layer_name: 'y',
                      n_classes: 2,
-                     irange: 0.
+                     irange: 0.,
                  }
                 ],
-        nvis: 212
+        nvis: 12,
     },
     # We train using SGD and momentum
     algorithm: !obj:pylearn2.training_algorithms.sgd.SGD {
@@ -22,13 +22,11 @@
         learning_rule: !obj:pylearn2.training_algorithms.learning_rule.Momentum {
             init_momentum: .5,
         },
-        cost: !obj:pylearn2.costs.mlp.Default {},
+        #cost: !obj:pylearn2.costs.mlp.Default {},
         # We monitor how well we're doing during training on a validation set
         monitoring_dataset:
            {
-                'valid' : !obj:pylearn2.datasets.binarizer.Binarizer {
-                   raw: *train,
-                }
+                'valid' : *train,
             },
         # We stop when validation set classification error hasn't decreased for 10 epochs
         termination_criterion: !obj:pylearn2.termination_criteria.MonitorBased {

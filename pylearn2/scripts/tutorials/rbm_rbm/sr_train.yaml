@@ -2,38 +2,33 @@
     dataset: &train !obj:pylearn2.datasets.gi2_gian5.gi2_gian5 {
             which_set: "test",
             shuffle: False,
-            choose: 100,
+            choose: 00,
     },
     model: !obj:pylearn2.models.softmax_regression.SoftmaxRegression {
+        batch_size: 100,
         n_classes: 2,
         irange: 0.,
-        nvis: 212,
-     },
-    algorithm: !obj:pylearn2.training_algorithms.bgd.BGD {
-        batch_size: 100,
-        line_search_mode: 'exhaustive',
-        conjugate: 1,
+        nvis: 12,
+    },
+    # We train using SGD and momentum
+    algorithm: !obj:pylearn2.training_algorithms.sgd.SGD {
+        learning_rate: .05,
+        learning_rule: !obj:pylearn2.training_algorithms.learning_rule.Momentum {
+            init_momentum: .5,
+        },
+        # We monitor how well we're doing during training on a validation set
         monitoring_dataset:
-            {
-                #'train' : *train,
+           {
                 'valid' : *train,
-                #!obj:pylearn2.datasets.gi2_gian5.gi2_gian5 {
-                #              which_set: 'train',
-                #              start: 3000,
-                #              stop:  3741
-                    #      },
-               # 'test'  : !obj:pylearn2.datasets.gi2_gian5.gi2_gian5 {
-               #               which_set: 'test',
-               #               shuffle: False,
-                #              choose: 100,
-                  #        }
             },
+        # We stop when validation set classification error hasn't decreased for 10 epochs
         termination_criterion: !obj:pylearn2.termination_criteria.MonitorBased {
             channel_name: "valid_y_misclass",
             prop_decrease: 0.01,
             N: 3
-        }
+        },
     },
+    # We save the model whenever we improve on the validation set classification error
     extensions: [
         !obj:pylearn2.train_extensions.best_params.MonitorBasedSaveBest {
              channel_name: 'valid_y_misclass',

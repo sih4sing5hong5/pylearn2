@@ -44,28 +44,15 @@ class gi2_gian5_tshi3(dense_design_matrix.DenseDesignMatrix):
     """
 
     def __init__(self, file_name,
-                 one_hot=None, binarize=False, start=None,
-                 stop=None, axes=['b', 0, 1, 'c'],
-                 preprocessor=None,
-                 fit_preprocessor=False,
-                 fit_test_preprocessor=False):
+                 start=None,
+                 stop=None,):
         self.args = locals()
-
-        def dimshuffle(b01c):
-            """
-            .. todo::
-
-                WRITEME
-            """
-            default = ('b', 0, 1, 'c')
-            return b01c.transpose(*[default.index(axis) for axis in axes])
-
         
         # Path substitution done here in order to make the lower-level
         # mnist_ubyte.py as stand-alone as possible (for reuse in, e.g.,
         # the Deep Learning Tutorials, or in another package).
 
-        topo_view,y = self.read_file(file_name)
+        X,y = self.read_file(file_name)
         
         max_labels = 2
         
@@ -74,22 +61,14 @@ class gi2_gian5_tshi3(dense_design_matrix.DenseDesignMatrix):
             one_hot_y[i, y[i]] = 1
         y = one_hot_y
         
-        if one_hot is not None:
-            warnings.warn("the `one_hot` parameter is deprecated. To get "
-                          "one-hot encoded targets, request that they "
-                          "live in `VectorSpace` through the `data_specs` "
-                          "parameter of MNIST's iterator method. "
-                          "`one_hot` will be removed on or after "
-                          "September 20, 2014.", stacklevel=2)
-
-        print(topo_view)
+        print(X)
         print(y)
-        m, r = topo_view.shape
+        m, r = X.shape
 #         assert c == 28
 #         topo_view = topo_view.reshape(m, r, c, 1)
 
-        super(gi2_gian5_tshi3, self).__init__(X=topo_view, y=y,
-                                    axes=axes, y_labels=max_labels)
+        super(gi2_gian5_tshi3, self).__init__(X=X, y=y,
+                                    y_labels=max_labels)
 
         assert not N.any(N.isnan(self.X))
 
@@ -109,8 +88,6 @@ class gi2_gian5_tshi3(dense_design_matrix.DenseDesignMatrix):
                 self.y = self.y[start:stop]
             assert self.y.shape[0] == stop - start
 
-        if self.X is not None and preprocessor:
-            preprocessor.apply(self, fit_preprocessor)
     def read_file(self,file_name):
         with open(file_name) as file_object:
             X,y=json.load(file_object)

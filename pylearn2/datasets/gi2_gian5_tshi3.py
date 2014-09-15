@@ -44,6 +44,7 @@ class gi2_gian5_tshi3(dense_design_matrix.DenseDesignMatrix):
     """
 
     def __init__(self, file_name,
+                 one_hot=True,
                  start=None,
                  stop=None,):
         self.args = locals()
@@ -56,10 +57,11 @@ class gi2_gian5_tshi3(dense_design_matrix.DenseDesignMatrix):
         
         max_labels = 2
         
-        one_hot_y = N.zeros((y.shape[0], max_labels), dtype='uint8')
-        for i in xrange(y.shape[0]):
-            one_hot_y[i, y[i]] = 1
-        y = one_hot_y
+        if one_hot:
+            one_hot_y = N.zeros((y.shape[0], max_labels), dtype='uint8')
+            for i in xrange(y.shape[0]):
+                one_hot_y[i, y[i]] = 1
+            y = one_hot_y
         
         print(X)
         print(y)
@@ -92,7 +94,7 @@ class gi2_gian5_tshi3(dense_design_matrix.DenseDesignMatrix):
         with open(file_name) as file_object:
             X,y=json.load(file_object)
         return numpy.array(X,dtype='float32'),\
-        	numpy.array(y,dtype='uint8'),
+            numpy.array(y,dtype='uint8'),
 
     def adjust_for_viewer(self, X):
         """

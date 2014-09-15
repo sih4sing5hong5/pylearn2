@@ -1,8 +1,6 @@
 !obj:pylearn2.train.Train {
-    dataset: &train !obj:pylearn2.datasets.gi2_gian5.gi2_gian5 {
-            which_set: "test",
-            shuffle: False,
-            choose: 00,
+    dataset: &train !obj:pylearn2.datasets.gi2_gian5_tshi3.gi2_gian5_tshi3 {
+            file_name: "/home/chhsueh/git/pylearn2/pylearn2/scripts/tutorials/rbm_rbm/data.json",
     },
     model: !obj:pylearn2.models.softmax_regression.SoftmaxRegression {
         batch_size: 100,
